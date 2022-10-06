@@ -2,8 +2,17 @@ clear; close all; clc;
 
 rng(0); % set random seed
 
-input_bits = [0, 1, 1, 0, 0];
-output_bits = digital_channel(input_bits);
+T = round(logspace(0, 3, 50));
+
+error = zeros(1, 50);
+input_bits = round(rand(1, 1000));
+for iter = 1:50
+    output_bits = digital_channel(input_bits, T(iter), 0, 0, 1);
+    error(iter) = sum(abs(output_bits - input_bits) > 0.5);
+end
+
+figure();
+stem(error);
 
 %% utils 
 function y = complex_sample_channel(x, b, rou, sigma_n)
@@ -36,10 +45,10 @@ function v = complex_elec_channel(u, T, b, rou, sigma_n)
 
 end
 
-function output_bits = digital_channel(input_bits)
+function output_bits = digital_channel(input_bits, T, b, rou, sigma_n)
 
     u = (input_bits*2-1) * (1+1j);
-    v = complex_elec_channel(u, 100, 0, 0, 0.1);
+    v = complex_elec_channel(u, T, b, rou, sigma_n);
     output_bits = abs(v-(1+1j)) < abs(v-(-1-1j));
 
 end
