@@ -6,7 +6,7 @@ b = 0;
 rou = 0;
 SNR = 100;
 sigma_n = sqrt(1/SNR);
-
+rng(0); % set random seed
 
 %% simulations
 N = 900; % numbers of bits

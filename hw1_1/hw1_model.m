@@ -7,7 +7,7 @@ rou = 0;
 SNR = 4;
 sigma_n = sqrt(1/SNR);
 
-% rng(0); % set random seed
+rng(0); % set random seed
 
 
 %% simulations
