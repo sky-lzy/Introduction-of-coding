@@ -13,20 +13,20 @@ function output_bits = digital_channel(input_bits, N_bits, T, b, rou, sigma_n, I
     
     % generate channel
     a = generate_channel(len_encode*T, b, rou);
-    avg_a = zeros(1, len_encode);
-    for iter_t = 1:T
-        avg_a = mean(a(T*(iter_t-1)+1:T*iter_t));
-    end
+    % avg_a = zeros(1, len_encode);
+    % for iter_t = 1:T
+    %     avg_a = mean(a(T*(iter_t-1)+1:T*iter_t));
+    % end
 
     % signal processing
     u = pskmod(encode_bits, M);
-    if (send_flag)
-        u = u .* exp(-1j*angle(avg_a));
-    end
-    v = complex_elec_channel(u, T, a, sigma_n);
-    if (~send_flag && recv_flag)
-        v = v .* exp(-1j*angle(avg_a));
-    end
+    % if (send_flag)
+    %     u = u .* exp(-1j*angle(avg_a));
+    % end
+    v = complex_elec_channel(u, T, a, sigma_n, send_flag, ~send_flag&&recv_flag);
+    % if (~send_flag && recv_flag)
+    %     v = v .* exp(-1j*angle(avg_a));
+    % end
     receive_bits = pskdemod(v, M);
 
     % decode
@@ -51,14 +51,20 @@ function y = complex_sample_channel(x, a, sigma_n)
 
 end
 
-function v = complex_elec_channel(u, T, a, sigma_n)
+function v = complex_elec_channel(u, T, a, sigma_n, flag_send, flag_recv)
 
     L = length(u);
     v = zeros(1, L);
 
     for iter_l = 1:L
         x = 1/sqrt(T)*u(iter_l)*ones(1, T);
+        if (flag_send)
+            x = x .* exp(-1j*angle(a(T*(iter_l-1)+1:T*iter_l)));
+        end
         y = complex_sample_channel(x, a(T*(iter_l-1)+1:T*iter_l), sigma_n);
+        if (flag_recv)
+            y = y .* exp(-1j*angle(a(T*(iter_l-1)+1:T*iter_l)));
+        end
         v(iter_l) = 1/sqrt(T)*sum(y);
     end
 
