@@ -13,18 +13,21 @@ sigma_n = sqrt(1./SNR);
 
 %% simulations 
 length_bits = 100;
+N_cycles = 100;
 send_bits = randi([0, 1], 1, length_bits);
 
 errors = zeros(4, N_epochs);
 for epoch = 1:N_epochs
     for k = 1:4
         rng(0);
-        receive_bits = digital_channel(send_bits, 1, T(epoch), b, rou, sigma_n(k));
-        error_number = sum(abs(receive_bits-send_bits));
-        errors(k, epoch) = error_number / length_bits;
+        for iter_n = 1:N_cycles
+            receive_bits = digital_channel(send_bits, 1, T(epoch), b, rou, sigma_n(k));
+            error_number = sum(abs(receive_bits-send_bits));
+            errors(k, epoch) = errors(k, epoch) + error_number / length_bits;
+        end
     end
 end
-
+errors = errors / N_cycles;
 
 %% visualization
 figure(); 
