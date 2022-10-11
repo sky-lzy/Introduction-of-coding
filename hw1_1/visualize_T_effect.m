@@ -2,13 +2,13 @@ clear; close all; clc;
 
 %% parameters
 N_epochs = 20;
-T = round(logspace(0, 3, N_epochs));
+T = round(logspace(0, 4, N_epochs));
 b = 0.7;
 rou = 0.996;
 N_dots = 10;
 SNR = [1, 2, 5, 10];
 sigma_n = sqrt(1./SNR);
-% rng(0); % set random seed
+rng(0); % set random seed
 
 
 %% simulations 
@@ -24,6 +24,7 @@ for epoch = 1:N_epochs
             receive_bits = digital_channel(send_bits, 1, T(epoch), b, rou, sigma_n(k));
             error_number = sum(abs(receive_bits-send_bits));
             errors(k, epoch) = errors(k, epoch) + error_number / length_bits;
+            fprintf('epoch: %d, k: %d, iter: %d, finished!\n', epoch, k, iter_n);
         end
     end
 end
