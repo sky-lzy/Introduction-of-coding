@@ -5,6 +5,7 @@ function visualize_error_snr(L)
     SNRs = logspace(-2, 2, N_dots);
     error_rate2s = zeros(1,N_dots);
     error_rate2sc = [];
+    real_error_rate = [];
     error_rate3s = zeros(1,N_dots);
     error_rate_tail2s = zeros(1,N_dots);
     error_rate_tail3s = zeros(1,N_dots);
@@ -33,8 +34,18 @@ function visualize_error_snr(L)
         % 软判别crc
         v2sc = conv_encode(dtest,2,1,sigma_n);
         %scatterplot(v);
-        [~,errsc] = conv_decode(v2sc,L+3*L/200,g2,1,dtest,1,200,L/200);
-        error_rate2sc = [error_rate2sc,errsc];
+        g = [1,0,1,1;1,1,1,1];
+        [decode,errsc] = conv_decode(v2sc,L+3*L/200,g,1,dtest,1,203,L/200);
+        error_rate2sc = [error_rate2sc,1-errsc];
+        real_errnum = 0;
+        for j= 1:L/200% 实际误块率
+           decode_block = decode(203*(j-1)+1:203*j-3);
+           block = dtest(200*(j-1)+1:200*j);
+           if(sum(block==decode_block)~=200)
+               real_errnum = real_errnum+1;
+           end
+        end
+        real_error_rate = [real_error_rate,real_errnum/(L/200)];
         
         % 硬判别
         v2h = conv_encode(dtest,2,0,sigma_n);
@@ -102,13 +113,13 @@ function visualize_error_snr(L)
     title('Error Rate - SNR in CC', 'FontWeight', 'bold');
 
     figure(); 
-    %semilogy(pow2db(SNRs), error_rate2s, 'Marker', '*', 'Linewidth', 2);
-    semilogy(pow2db(SNRs), error_rate2sc, 'Marker', 'o', 'Linewidth', 2);hold on; grid on;
-    legend("crc");
+    semilogy(pow2db(SNRs), real_error_rate, 'Marker', 'o', 'Linewidth', 2);hold on; grid on;
+    semilogy(pow2db(SNRs), error_rate2sc, 'Marker', '*', 'Linewidth', 2);
+    legend("real error block rate", "error block rate of crc");
     xlabel('SNR of Complex Sampling Channel (dB)');
-    ylabel('Error Rate');
+    ylabel('Error Block Rate');
     set(gca, 'FontName', 'Times New Roman');
-    title('Error Rate - SNR in CC', 'FontWeight', 'bold');
+    title('Error Block Rate - SNR in CC', 'FontWeight', 'bold');
 end
 
 

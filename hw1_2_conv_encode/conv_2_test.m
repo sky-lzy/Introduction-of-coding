@@ -1,11 +1,7 @@
 clc;clear;
 
 %visualize_error_snr(50);
-
 visualize_error_snr(10000);
-
-
-
 % max_snr = 2;
 % min_snr = 0.5;
 % stride = (max_snr-min_snr)/10;
