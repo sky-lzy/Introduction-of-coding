@@ -17,13 +17,20 @@ function output_v = conv_encode(input_code, N_bits, crc, sigma_n, is_tail)
     L = length(dtest);
     if(crc)
         % CRC编码，25bytes = 200bits一组
+        if(tail_flag)
+            dtest = dtest(1:L-3);% remove tail
+            L = L-3;
+        end
         packnum = ceil(L/200);
         dcrc = [];
         for k = 1:packnum
             pack = crc3(dtest(200*(k-1)+1:200*k));
+            if(tail_flag)
+                pack = [pack,tail];
+            end
             dcrc = [dcrc,pack];
         end
-        dtest = dcrc;
+        dtest = dcrc;       
     end
     L = length(dtest);
     if(N_bits == 2)
