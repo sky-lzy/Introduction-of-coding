@@ -1,7 +1,6 @@
 function output_v = conv_encode(input_code, N_bits, crc, sigma_n, is_tail)
     % 二元1/2效率卷积码模块 
-    % input_code
-    % 输入序列，N_bits为2或3表示效率，crc为1时添加crc校验，sigma_n为噪声方差，is_tail为1时收尾。
+    % input_code输入序列，N_bits为2或3表示效率，crc为1时添加crc校验，sigma_n为噪声方差，is_tail为1时收尾。
     % 建议参数（15,17）-> oct2bin(15)=1101 oct2bin(17)=1111（2,1,4）码
     g21 = [1,1,0,1]; %生成多项式系数
     g22 = [1,1,1,1];
