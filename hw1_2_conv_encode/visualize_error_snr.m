@@ -33,8 +33,7 @@ function visualize_error_snr(L)
         
         % 不收尾软判别crc
         v2sc = conv_encode(dtest,2,1,sigma_n);
-        g = [1,0,1,1;1,1,1,1];
-        [decode,errsc] = conv_decode(v2sc,L+3*L/200,g,1,dtest,1,203,L/200);
+        [decode,errsc] = conv_decode(v2sc,L+3*L/200,g2,1,dtest,1,203,L/200);
         error_rate2sc = [error_rate2sc,1-errsc];
         real_errnum = 0;
         for j= 1:L/200% 实际误块率
@@ -76,7 +75,7 @@ function visualize_error_snr(L)
     % 收尾软判别crc
         v2sc = conv_encode(dtest,2,1,sigma_n,true);
         g = [1,0,1,1;1,1,1,1];
-        [decode,errsc] = conv_decode(v2sc,L+6*L/200,g,1,dtest,1,206,L/200);
+        [decode,errsc] = conv_decode(v2sc,L+6*L/200,g2,1,dtest,1,206,L/200);
         error_rate2sc_tail = [error_rate2sc_tail,1-errsc];
         real_errnum = 0;
         for j= 1:L/200% 实际误块率
