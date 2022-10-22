@@ -1,17 +1,26 @@
-function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size,block_number)
+function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size,block_number,N_bits,throw)
     %'r'为待解码序列，'l_decode'为解码出的长度,'g'为卷积码系数（*一定注意要逐行翻转）,'crc'是否为crc
-    %'block_size'crc块大小,'block_number'crc块数,'sorh'软判决1或者硬判决0
+    %'block_size'crc块大小(包括添加的尾部),'block_number'crc块数,'sorh'软判决1或者硬判决0
+    %'M'表示传输过程中在单位圆上取多少点，throw为一个二维向量（throw1,throw2），例如（3，1）为三位里扔掉最后一位
     %decode为输出序列，corr_rate为输出正确率(crc=0是为逐个比特误码率，crc=1时为误块率)
     %只适用于卷积后长度和码流长度之比为整数的情况
+    %如果是软判决需要卷积码效率rate和N_bits相等
+
+    M = 2^N_bits;
+    r_copy = r;
+    for i = 1:length(r)/(throw(1)-throw(2))
+        r(i*throw(1)-throw(1)+1:i*throw(1)-1) = r_copy((i-1)*(throw(1)-throw(2))+1:i*(throw(1)-throw(2)));
+        r(i*throw(1)) = sqrt(-1);
+    end
 
     L = length(r);                   %L为收到卷积码长度 
-    rate = L/l_decode;               %卷积后长度和码流长度之比
+    rate = L*N_bits/l_decode;               %卷积后长度和码流长度之比
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if sorh       %软判决译码
         state_re = zeros(8,l_decode);    %用于回溯状态
         decode = zeros(1,l_decode);      %最后解码出的信息
-        templ_1 = zeros(8,rate);   %当前状态输入1之后编码器输出的2bit编码值,1~8分别对应000~111
-        templ_0 = zeros(8,rate);   %当前状态输入0之后编码器输出的2bit编码值,1~8分别对应000~111
+        templ_1 = zeros(8);   %当前状态输入1之后编码器输出的2bit编码值,1~8分别对应000~111
+        templ_0 = zeros(8);   %当前状态输入0之后编码器输出的2bit编码值,1~8分别对应000~111
 
         %生成维特比的转换图
         for i = 1:8
@@ -24,12 +33,14 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
             %templ_0(i,1) = mod([1,0,1,1]*[cur_state,0]',2);
             %templ_0(i,2) = mod([1,1,1,1]*[cur_state,0]',2);
             for k = 1:rate
-                templ_1(i,k) = mod(g(k,:)*[cur_state,1]',2);
-                templ_0(i,k) = mod(g(k,:)*[cur_state,0]',2);
+                templ_1(i) = templ_1(i)*2 + mod(g(k,:)*[cur_state,1]',2);
+                templ_0(i) = templ_0(i)*2 + mod(g(k,:)*[cur_state,0]',2);
             end
         end
-        templ_1 = (1-templ_1*2)*(1+sqrt(-1));   %将模板进行复电平映射，0映射到1+j，1映射到-1-j
-        templ_0 = (1-templ_0*2)*(1+sqrt(-1));
+        %templ_1 = (1-templ_1*2)*(1+sqrt(-1));   %将模板进行复电平映射，0映射到1+j，1映射到-1-j
+        %templ_0 = (1-templ_0*2)*(1+sqrt(-1));
+        templ_0 = pskmod(templ_0,M);
+        templ_1 = pskmod(templ_1,M);
 
         state_prob = zeros(1,8);     %记录每个状态当前的概率值
         next_state_prob = zeros(1,8);  %记录下一拍每个状态的概率值
@@ -45,12 +56,8 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
                     if state_act((j-2)/2+1) && state_act((j-2)/2+5) %两种状态都已有路径可以达到
                         prob1 = state_prob((j-2)/2+1);
                         prob2 = state_prob((j-2)/2+5);
-                        for k =1:rate
-                            prob1 = prob1 + cal_theta(r(i+k-1),templ_1((j-2)/2+1,k));
-                        end
-                        for k = 1:rate
-                            prob2 = prob2 + cal_theta(r(i+k-1),templ_1((j-2)/2+5,k));
-                        end
+                        prob1 = prob1 + cal_theta(r((i+rate-1)/rate),templ_1((j-2)/2+1));
+                        prob2 = prob2 + cal_theta(r((i+rate-1)/rate),templ_1((j-2)/2+5));
                         %comp = [state_prob((j-2)/2+1) + cal_theta(r(i),templ_1((j-2)/2+1,1))+cal_theta(r(i+1),templ_1((j-2)/2+1,2)),...
                         %state_prob((j-2)/2+5) +  cal_theta(r(i),templ_1((j-2)/2+5,1))+cal_theta(r(i+1),templ_1((j-2)/2+5,2))];
                         comp = [prob1,prob2];
@@ -64,17 +71,13 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
                     elseif state_act((j-2)/2+1)                    %只有第一种状态有路径
                         state_re(j,(i+rate-1)/rate) = (j-2)/2+1;
                         next_state_prob(j) = state_prob((j-2)/2+1);
-                        for k =1:rate
-                            next_state_prob(j) = next_state_prob(j) + cal_theta(r(i+k-1),templ_1((j-2)/2+1,k));
-                        end
+                        next_state_prob(j) = next_state_prob(j) + cal_theta(r((i+rate-1)/rate),templ_1((j-2)/2+1));
                         %next_state_prob(j) = state_prob((j-2)/2+1) + cal_theta(r(i),templ_1((j-2)/2+1,1))+cal_theta(r(i+1),templ_1((j-2)/2+1,2));
                         next_state_act(j) = 1;
                     elseif state_act((j-2)/2+5)                    %只有第二种状态有路径
                         state_re(j,(i+rate-1)/rate) = (j-2)/2+5;
                         next_state_prob(j) = state_prob((j-2)/2+5);
-                        for k = 1:rate
-                            next_state_prob(j) = next_state_prob(j) + cal_theta(r(i+k-1),templ_1((j-2)/2+5,k));
-                        end
+                        next_state_prob(j) = next_state_prob(j) + cal_theta(r((i+rate-1)/rate),templ_1((j-2)/2+5));
                         %next_state_prob(j) = state_prob((j-2)/2+5) + cal_theta(r(i),templ_1((j-2)/2+5,1))+cal_theta(r(i+1),templ_1((j-2)/2+5,2));
                         next_state_act(j) = 1;
                     end
@@ -84,12 +87,8 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
                     if state_act((j-1)/2+1) && state_act((j-1)/2+5) %两种状态都已有路径可以达到
                         prob1 = state_prob((j-1)/2+1);
                         prob2 = state_prob((j-1)/2+5);       
-                        for k =1:rate
-                            prob1 = prob1 + cal_theta(r(i+k-1),templ_0((j-1)/2+1,k));
-                        end
-                        for k = 1:rate
-                            prob2 = prob2 + cal_theta(r(i+k-1),templ_0((j-1)/2+5,k));
-                        end                 
+                        prob1 = prob1 + cal_theta(r((i+rate-1)/rate),templ_0((j-1)/2+1));
+                        prob2 = prob2 + cal_theta(r((i+rate-1)/rate),templ_0((j-1)/2+5));               
                         %comp = [state_prob((j-1)/2+1) + cal_theta(r(i),templ_0((j-1)/2+1,1))+cal_theta(r(i+1),templ_0((j-1)/2+1,2)),...
                         %state_prob((j-1)/2+5) +  cal_theta(r(i),templ_0((j-1)/2+5,1))+cal_theta(r(i+1),templ_0((j-1)/2+5,2))];
                         comp = [prob1,prob2];
@@ -103,17 +102,13 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
                     elseif state_act((j-1)/2+1)                    %只有第一种状态有路径
                         state_re(j,(i+rate-1)/rate) = (j-1)/2+1;
                         next_state_prob(j) = state_prob((j-1)/2+1);
-                        for k =1:rate
-                            next_state_prob(j) = next_state_prob(j) + cal_theta(r(i+k-1),templ_0((j-1)/2+1,k));
-                        end
+                        next_state_prob(j) = next_state_prob(j) + cal_theta(r((i+rate-1)/rate),templ_0((j-1)/2+1));
                         %next_state_prob(j) = state_prob((j-1)/2+1) + cal_theta(r(i),templ_0((j-1)/2+1,1))+cal_theta(r(i+1),templ_0((j-1)/2+1,2));
                         next_state_act(j) = 1;
                     elseif state_act((j-1)/2+5)                    %只有第二种状态有路径
                         state_re(j,(i+rate-1)/rate) = (j-1)/2+5;
                         next_state_prob(j) = state_prob((j-1)/2+5);
-                        for k = 1:rate
-                            next_state_prob(j) = next_state_prob(j) + cal_theta(r(i+k-1),templ_0((j-1)/2+5,k));
-                        end
+                        next_state_prob(j) = next_state_prob(j) + cal_theta(r((i+rate-1)/rate),templ_0((j-1)/2+5));
                         %next_state_prob(j) = state_prob((j-1)/2+5) + cal_theta(r(i),templ_0((j-1)/2+5,1))+cal_theta(r(i+1),templ_0((j-1)/2+5,2));
                         next_state_act(j) = 1;
                     end
@@ -122,7 +117,8 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
             state_prob = next_state_prob;
             state_act = next_state_act;
         end
-
+        
+        L = L*N_bits;
         [~,I] = max(state_prob);
         decode(L/rate) = mod(I-1,2);
         I = state_re(I,L/rate);
@@ -131,15 +127,17 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
             I = state_re(I,i);
         end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    else          %硬判决译码          
+    else          %硬判决译码 
+        r = pskdemod(r, M);
+
         %首先判决r
-        for i = 1:L
-            if cal_theta(r(i),(1+sqrt(-1)))>0
-                r(i) = 0;
-            else
-                r(i) = 1;
-            end
+        v = zeros(1, length(input_bits));
+        for iter = 1:len_encode
+            v(N_bits*(iter-1)+1:N_bits*iter) = dec2bin(r(iter), N_bits) - '0';
         end
+        r = v;
+        L = length(r);
+        rate = L/l_decode;
 
         state_re = zeros(8,l_decode);    %用于回溯状态
         decode = zeros(1,l_decode);      %最后解码出的信息
