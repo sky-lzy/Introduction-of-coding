@@ -35,6 +35,8 @@ figure();
     set(gca, 'FontName', 'Times New Roman');
     title('Error Bit Rate - SNR without no coding(4000)', 'FontWeight', 'bold');
     
+    
+    
 %% simulations 5000
 errors2 = zeros(1,N_dots);
 errors3 = zeros(1,N_dots);
