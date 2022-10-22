@@ -1,7 +1,7 @@
 clear; close all; clc;
 
 %% parameters
-T = 10;
+T = 1;
 b = 0;
 rou = 0;
 N_SNR = 10;
@@ -11,7 +11,7 @@ rng(0); % set random seed
 
 
 %% simulations 
-N = 9000;
+N = 90000;
 send_bits = randi([0, 1], 1, N);
 errors = zeros(3, N_SNR);
 for iter = 1:N_SNR
@@ -26,14 +26,14 @@ end
 
 
 %% visualization 
-figure(); hold on; box on; grid on;
-plot(pow2db(SNR), pow2db(errors(1, :)), 'Marker', 'o', 'Linewidth', 2);
-plot(pow2db(SNR), pow2db(errors(2, :)), 'Marker', '+', 'Linewidth', 2);
-plot(pow2db(SNR), pow2db(errors(3, :)), 'Marker', 'x', 'Linewidth', 2);
+figure(); 
+semilogy(pow2db(SNR/T), errors(1, :), 'Marker', 'o', 'Linewidth', 2); hold on;
+semilogy(pow2db(SNR/T), errors(2, :), 'Marker', '+', 'Linewidth', 2);
+semilogy(pow2db(SNR/T), errors(3, :), 'Marker', 'x', 'Linewidth', 2);
 xlabel('SNR (dB)');
-ylabel('Error Rate (dB)');
+ylabel('Error Rate');
 title('Error Rate in Different Signal-Bit Ratio');
 set(gca, 'FontName', 'Times New Roman');
 legend('1 bit per signal', '2 bits per signal', '3 bits per signal');
-saveas(gca, 'Diff_SBR.pdf');
+% saveas(gca, 'Diff_SBR.pdf');
 
