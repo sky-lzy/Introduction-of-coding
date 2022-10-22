@@ -1,5 +1,28 @@
 clear; close all; clc;
 
+T = [1, 2, 5, 10];
+SNR = logspace(-1, 1, 10);
+ESNR = zeros(4, 10);
+for iter = 1:4
+    ESNR(iter, :) = T(iter) * SNR;
+end
+
+figure(); hold on; box on; grid on;
+plot(pow2db(SNR), pow2db(ESNR(1, :)), 'Marker', '*', 'Linewidth', 2);
+plot(pow2db(SNR), pow2db(ESNR(2, :)), 'Marker', 'o', 'Linewidth', 2);
+plot(pow2db(SNR), pow2db(ESNR(3, :)), 'Marker', '+', 'Linewidth', 2);
+plot(pow2db(SNR), pow2db(ESNR(4, :)), 'Marker', 'x', 'Linewidth', 2);
+xlabel('SNR of Complex Sampling Channel (dB)');
+ylabel('ESNR of Comples Electrical Channel (dB)');
+legend('T = 1', 'T = 2', 'T = 5', 'T = 10');
+set(gca, 'FontName', 'Times New Roman');
+title('Relationship of the SNRs', 'FontWeight', 'bold');
+
+
+%{
+
+clear; close all; clc;
+
 %% parameters
 T = 10;
 b = 0;
@@ -63,3 +86,4 @@ function [v, SNR] = complex_elec_channel(u, T, b, rou, sigma_n)
 
 end
 
+%}
