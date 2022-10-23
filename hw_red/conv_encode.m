@@ -39,7 +39,7 @@ function output_v = conv_encode(input_code, N, N_bits, crc, sigma_n, is_tail)
         L = L*2;% 效率为1/2，编码后码长翻倍
         d = d(1:L); %对编码器中残留的部分进行截断
         output_code = d;
-        output_v = digital_channel(output_code,1,5,0,0,sigma_n);
+        output_v = digital_channel(output_code,N_bits,5,0,0,sigma_n);
     elseif (N == 3)
         x1 = mod(conv(g31,dtest),2);
         x2 = mod(conv(g32,dtest),2);

@@ -1,18 +1,18 @@
 function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size,block_number,N_bits,throw)
     %'r'为待解码序列，'l_decode'为解码出的长度,'g'为卷积码系数（*一定注意要逐行翻转）,'crc'是否为crc
     %'block_size'crc块大小(包括添加的尾部),'block_number'crc块数,'sorh'软判决1或者硬判决0
-    %'M'表示传输过程中在单位圆上取多少点，throw为一个二维向量（throw1,throw2），例如（3，1）为三位里扔掉最后一位
+    %'M'表示传输过程中在单位圆上取多少点，throw为几位里扔掉最后一位
     %decode为输出序列，corr_rate为输出正确率(crc=0是为逐个比特误码率，crc=1时为误块率)
     %只适用于卷积后长度和码流长度之比为整数的情况
     %如果是软判决需要卷积码效率rate和N_bits相等
 
     M = 2^N_bits;
-    r_copy = r;
-    for i = 1:length(r)/(throw(1)-throw(2))
-        r(i*throw(1)-throw(1)+1:i*throw(1)-1) = r_copy((i-1)*(throw(1)-throw(2))+1:i*(throw(1)-throw(2)));
-        r(i*throw(1)) = sqrt(-1);
+    if throw ~= 0
+        for i = 1:length(r)/throw
+            r(i*throw) = sqrt(-1);
+        end
     end
-
+    
     L = length(r);                   %L为收到卷积码长度 
     rate = L*N_bits/l_decode;               %卷积后长度和码流长度之比
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -131,7 +131,7 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
         r = pskdemod(r, M);
 
         %首先判决r
-        v = zeros(1, length(input_bits));
+        v = zeros(1, L*N_bits);
         for iter = 1:len_encode
             v(N_bits*(iter-1)+1:N_bits*iter) = dec2bin(r(iter), N_bits) - '0';
         end
