@@ -132,7 +132,7 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
 
         %首先判决r
         v = zeros(1, L*N_bits);
-        for iter = 1:len_encode
+        for iter = 1:length(r)
             v(N_bits*(iter-1)+1:N_bits*iter) = dec2bin(r(iter), N_bits) - '0';
         end
         r = v;
@@ -173,8 +173,8 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
                 if mod(j-1,2)   %如果状态最后一位为1，证明这次输入为1
                     %(j-2)/2+1和(j-2)/2+5是两个可以得到该状态的上一拍状态，要比较哪一种概率最大
                     if state_act((j-2)/2+1) && state_act((j-2)/2+5) %两种状态都已有路径可以达到
-                        comp = [state_prob((j-2)/2+1) + sum(r(i:i+rate-1)==templ_1((j-2)/2+1,:)'), ...
-                        state_prob((j-2)/2+5) +  sum(r(i:i+rate-1)==templ_1((j-2)/2+5,:)')];
+                        comp = [state_prob((j-2)/2+1) + sum(r(i:i+rate-1)==templ_1((j-2)/2+1,:)), ...
+                        state_prob((j-2)/2+5) +  sum(r(i:i+rate-1)==templ_1((j-2)/2+5,:))];
                         [next_state_prob(j),I] = max(comp);
                         if I == 1
                             state_re(j,(i+rate-1)/rate) = (j-2)/2+1;
@@ -184,19 +184,19 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
                         next_state_act(j) = 1;
                     elseif state_act((j-2)/2+1)                    %只有第一种状态有路径
                         state_re(j,(i+rate-1)/rate) = (j-2)/2+1;
-                        next_state_prob(j) = state_prob((j-2)/2+1) + sum(r(i:i+rate-1)==templ_1((j-2)/2+1,:)');
+                        next_state_prob(j) = state_prob((j-2)/2+1) + sum(r(i:i+rate-1)==templ_1((j-2)/2+1,:));
                         next_state_act(j) = 1;
                     elseif state_act((j-2)/2+5)                    %只有第二种状态有路径
                         state_re(j,(i+rate-1)/rate) = (j-2)/2+5;
-                        next_state_prob(j) = state_prob((j-2)/2+5) + sum(r(i:i+rate-1)==templ_1((j-2)/2+5,:)');
+                        next_state_prob(j) = state_prob((j-2)/2+5) + sum(r(i:i+rate-1)==templ_1((j-2)/2+5,:));
                         next_state_act(j) = 1;
                     end
 
                 else            %如果状态最后一位不为1，证明这次输入为0
                     %(j-1)/2+1和(j-1)/2+5是两个可以得到该状态的上一拍状态，要比较哪一种概率最大
                     if state_act((j-1)/2+1) && state_act((j-1)/2+5) %两种状态都已有路径可以达到
-                        comp = [state_prob((j-1)/2+1) + sum(r(i:i+rate-1)==templ_0((j-1)/2+1,:)'),...
-                        state_prob((j-1)/2+5) +  sum(r(i:i+rate-1)==templ_0((j-1)/2+5,:)')];
+                        comp = [state_prob((j-1)/2+1) + sum(r(i:i+rate-1)==templ_0((j-1)/2+1,:)),...
+                        state_prob((j-1)/2+5) +  sum(r(i:i+rate-1)==templ_0((j-1)/2+5,:))];
                         [next_state_prob(j),I] = max(comp); 
                         if I == 1
                             state_re(j,(i+rate-1)/rate) = (j-1)/2+1;
@@ -206,11 +206,11 @@ function [decode,corr_rate] = conv_decode(r,l_decode,g,sorh,dtest,crc,block_size
                         next_state_act(j) = 1;
                     elseif state_act((j-1)/2+1)                    %只有第一种状态有路径
                         state_re(j,(i+rate-1)/rate) = (j-1)/2+1;
-                        next_state_prob(j) = state_prob((j-1)/2+1) + sum(r(i:i+rate-1)==templ_0((j-1)/2+1,:)');
+                        next_state_prob(j) = state_prob((j-1)/2+1) + sum(r(i:i+rate-1)==templ_0((j-1)/2+1,:));
                         next_state_act(j) = 1;
                     elseif state_act((j-1)/2+5)                    %只有第二种状态有路径
                         state_re(j,(i+rate-1)/rate) = (j-1)/2+5;
-                        next_state_prob(j) = state_prob((j-1)/2+5) + sum(r(i:i+rate-1)==templ_0((j-1)/2+5,:)');
+                        next_state_prob(j) = state_prob((j-1)/2+5) + sum(r(i:i+rate-1)==templ_0((j-1)/2+5,:));
                         next_state_act(j) = 1;
                     end
                 end
