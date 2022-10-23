@@ -117,7 +117,7 @@ figure();
     xlabel('SNR of Complex Sampling Channel (dB)');
     ylabel('Error Bit Rate');
     set(gca, 'FontName', 'Times New Roman');
-    title('Error Bit Rate - SNR without conv coding(7000)', 'FontWeight', 'bold');
+    title('Error Bit Rate - SNR without conv coding(7500)', 'FontWeight', 'bold');
     
     %% simulations 9000
 %1bit映射成一个符号，效率1/2，但是丢掉1/4
