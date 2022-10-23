@@ -74,7 +74,6 @@ function visualize_error_snr(L)
         
     % 收尾软判别crc
         v2sc = conv_encode(dtest,2,1,sigma_n,true);
-        g = [1,0,1,1;1,1,1,1];
         [decode,errsc] = conv_decode(v2sc,L+6*L/200,g2,1,dtest,1,206,L/200);
         error_rate2sc_tail = [error_rate2sc_tail,1-errsc];
         real_errnum = 0;
@@ -132,7 +131,7 @@ function visualize_error_snr(L)
     figure(); 
     semilogy(pow2db(SNRs), real_error_rate_tail, 'Marker', 'o', 'Linewidth', 2);hold on; grid on;
     semilogy(pow2db(SNRs), error_rate2sc_tail, 'Marker', '*', 'Linewidth', 2);
-    legend("real error block rate(tailed)", "error block rate of crc(tailed)");
+    legend("real error block rate(ending)", "error block rate of crc(ending)");
     xlabel('SNR of Complex Sampling Channel (dB)');
     ylabel('Error Block Rate');
     set(gca, 'FontName', 'Times New Roman');
