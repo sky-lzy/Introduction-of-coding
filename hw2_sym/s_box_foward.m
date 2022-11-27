@@ -11,5 +11,6 @@ for k = 0:255
     end
     out(k+1) = bin2dec(char(s + '0'));
 end
+out = uint8(out);
 
 end
