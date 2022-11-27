@@ -1,6 +1,6 @@
 function out = mul_matrix(in1, in2)
-% Input: two 4x4 matrix with element 0-255
-% Output: a 4x4 matrix with element 0-255, the product
+% Input: two 4x4 uint8/char array
+% Output: a 4x4 uint8 array, the product
 
 out = zeros(4,4);
 for k = 1:4
