@@ -1,6 +1,6 @@
 function ciphertext = aes_bl(message, key)
 % Input: two 1x16 uint8/char vectors, the message to encrypt and the key
-% Output: an 1x16 uint8/char vector, the ciphertext
+% Output: an 1x16 char vector, the ciphertext
 
 % preparation
 s_box = s_box_foward(); % s-box generation

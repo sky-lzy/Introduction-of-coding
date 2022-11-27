@@ -1,6 +1,6 @@
 function ciphertext = des_bl(message, key)
 % Input: two 1x16 uint8/char vectors, the message to encrypt and the key
-% Output: an 1x16 uint8/char vector, the ciphertext
+% Output: an 1x16 char vector, the ciphertext
 % D stands for DIFFERENTIAL
 
 % preparation
