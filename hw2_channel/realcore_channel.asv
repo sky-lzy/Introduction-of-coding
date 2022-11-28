@@ -1,12 +1,11 @@
-function [output,eb] = realcore_channel(input,N_bits,T,K,fs,n0,visualize)
+function output = realcore_channel(input,N_bits,T,K,fs,n0,visualize)
     u = pskmod(input,2^N_bits);% 将比特映射为复电平
 %     scatterplot(u);
-    [v,es] = core(u,T,K,fs,n0,visualize);
-    eb = es/N_bits;
+    v = core(u,T,K,fs,n0,visualize);
     output = pskdemod(v,N_bits);%符号判决
 end
 
-function [v,es] = core(u,T,K,fs,n0,visualize)
+function [v,eb] = core(u,T,K,fs,n0,visualize)
     rng(0);
     
     N = length(u); % 符号序列长度
@@ -16,12 +15,12 @@ function [v,es] = core(u,T,K,fs,n0,visualize)
     x_plot = [];
     s_plot = [];
     r_plot = [];
-    es = 0;
+    energy = 0;
     for i = 1:N
         x = u(i)*ones(1,T);
         x_plot = [x_plot,x];
         s = real(x.*carrier);
-        es = es + sum(s.^2);
+        energy = energy + s.^2;
         s_plot = [s_plot,s];
         noise = randn(1,T)*sqrt(fs*n0/2);
         r = s+noise;
@@ -29,7 +28,7 @@ function [v,es] = core(u,T,K,fs,n0,visualize)
         y = real(r*2.*carrier.^(-1));
         v(i) = sum(y)/T;
     end
-    es = es/fs;
+    
     
     
     if visualize
