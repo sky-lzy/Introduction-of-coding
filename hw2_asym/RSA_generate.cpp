@@ -13,10 +13,10 @@ uint64_t gcd(uint64_t m0, uint64_t n0);
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     if (nrhs != 1)
-        mexErrMsgTxt("Please input 1 parameters. \n"); 
+        mexErrMsgTxt("Please input 1 parameter. \n"); 
     uint8_t N_size = uint8_t(*mxGetPr(prhs[0])); 
     if (N_size > 31 || N_size < 4)
-        mexErrMsgTxt("Please input number large than 3 and less than 32. \n"); 
+        mexErrMsgTxt("Please input number larger than 3 and less than 32. \n"); 
 
     srand(unsigned(time(0))); 
     std::mt19937_64 rng(rand()); 
