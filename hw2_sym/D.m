@@ -6,7 +6,7 @@ xp = uint8(zeros(1,23));
 xp(8:23) = uint8(reshape(x,[1,16]));
 yp = uint8(zeros(1,23));
 key = reshape(key,[2,8]);
-key(key==0) =  max(key,[],'all');
+key(key==0) = uint8(max(key,[],'all')) + 1;
 
 for k = 8:23
     for r = 1:8
