@@ -104,6 +104,7 @@ function visual(fs,T,K,input_code,u,v,x_plot,s_plot,r_plot)
         ylabel('power/frequency(dB/Hz)');
         title('power spectrum of transmission signal')
         grid on;
+        ylim([-50,50]);
         
         subplot(2,1,2);hold on;
         plot(-fs/2+1:fs/2,pow2db(abs(fftshift(fft(xcorr(r_plot),fs)))));
@@ -111,5 +112,7 @@ function visual(fs,T,K,input_code,u,v,x_plot,s_plot,r_plot)
         ylabel('power/frequency(dB/Hz)');
         title('power spectrum of received signal')
         grid on;
+        ylim([-50,50]);
+
         
     end
