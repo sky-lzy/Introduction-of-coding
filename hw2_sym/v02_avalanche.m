@@ -82,3 +82,44 @@ xlabel('位序号');
 ylabel('密文比特改变的比例');
 text( 'string',strcat("mean = ",num2str(mean(coak)),", var = ",num2str(var(coak)*Nexp)), 'Units','normalized','HorizontalAlignment','right','position',[0.95,0.95],  'FontSize',14,'FontName','Consolas');%,'Color','r');  
 
+figure();
+subplot(2,1,1);
+plot(1:128, xor(cdes_e_bits,cdes_bits),'o');
+xlim([1,128]);
+line([1,128],[mean(xor(cdes_e_bits,cdes_bits)),mean(xor(cdes_e_bits,cdes_bits))],'Color','red','LineStyle','--');
+title('单块des编码改变明文第128位后密文bit的变化情况')
+xlabel('位序号');
+ylabel('密文比特是否改变');
+
+subplot(2,1,2);
+plot(1:128, xor(caes_e_bits,caes_bits),'o');
+xlim([1,128]);
+line([1,128],[mean(xor(caes_e_bits,caes_bits)),mean(xor(caes_e_bits,caes_bits))],'Color','red','LineStyle','--');
+title('单块aes编码改变明文第128位后密文bit的变化情况')
+xlabel('位序号');
+ylabel('密文比特是否改变');
+
+function bits = char2bits(ch)
+% Input: a char vector
+% Output: a bit vector
+
+Nchar = length(ch); % num of char
+bits = zeros(1,8*Nchar);
+for k = 1:Nchar
+    bits(8*k-7:8*k) = dec2bin(ch(k),8)-'0';
+end
+
+end
+
+function ch = bits2char(bits)
+% Input: a bit vector, length must be multiples of 8
+% Output: a char vector
+
+Nchar = length(bits)/8; % num of char
+ch = zeros(1,Nchar);
+for k = 1:Nchar
+    ch(k) = bin2dec(char(bits(8*k-7:8*k)+'0'));
+end
+ch = char(ch); % convert to char
+
+end

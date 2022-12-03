@@ -25,7 +25,7 @@ s_box = s_box_foward(); % s-box
 keys = subkey(key,s_box);
 
 % encryption
-ciphertext = zeros(1, 16 * Nblocks);
+ciphertext = char(zeros(1, 16 * Nblocks));
 for k = 1:Nblocks
     if(CBC && k>1) % xor last cipher block
         m_padded(16*k-15:16*k) = bitxor(uint8(m_padded(16*k-15:16*k)),uint8(ciphertext(16*k-31:16*k-16)));

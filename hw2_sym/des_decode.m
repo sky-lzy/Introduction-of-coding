@@ -18,7 +18,7 @@ keys = subkey(key,s_box);
 Nblocks  = length(ciphertext) / 16; % block num
 
 % decryption
-message = zeros(size(ciphertext));
+message = char(zeros(size(ciphertext)));
 for k = 1:Nblocks
     message(16*k-15:16*k) = des_bl_decode(ciphertext(16*k-15:16*k),keys); % decrypt by block
     if(CBC && k>1) % xor last cipher block
@@ -26,6 +26,8 @@ for k = 1:Nblocks
     end
 end
 Npadding = uint8(message(end)); % padding num
-message = char(message(1:end-Npadding)); % remove padding and convert to char
+if(length(message) > Npadding)
+    message = char(message(1:end-Npadding)); % remove padding and convert to char
+end
 
 end
