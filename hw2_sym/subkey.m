@@ -2,6 +2,10 @@ function keys = subkey(key,s_box)
 % Input: an 1x16 uint8/char vector of original key, and s-box
 % Output: a 40x4 uint8 array of subkey
 
+if(~exist('s_box','var'))
+    s_box = s_box_foward(); % s-box generation
+end
+
 rc = [1,2,4,8,0x10,0x20,0x40,0x80,0x1B,0x36]; % round constant
 keys = zeros(44, 4);
 keys(1:4,:) = reshape(uint8(key),[4,4])'; % original key

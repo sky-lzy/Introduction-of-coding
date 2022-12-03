@@ -1,9 +1,11 @@
-function ciphertext = aes_bl(message, key)
+function ciphertext = aes_bl(message, key, s_box)
 % Input: two 1x16 uint8/char vectors, the message to encrypt and the key
 % Output: an 1x16 char vector, the ciphertext
 
 % preparation
-s_box = s_box_foward(); % s-box generation
+if(~exist('s_box','var'))
+    s_box = s_box_foward(); % s-box generation
+end
 pos = uint8([2,3,1,1;1,2,3,1;1,1,2,3;3,1,1,2]); % matrix for MixColumns
 
 % subkey generation

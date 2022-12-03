@@ -30,7 +30,7 @@ for k = 1:Nblocks
     if(CBC && k>1) % xor last cipher block
         m_padded(16*k-15:16*k) = bitxor(uint8(m_padded(16*k-15:16*k)),uint8(ciphertext(16*k-31:16*k-16)));
     end
-    ciphertext(16*k-15:16*k) = aes_bl(m_padded(16*k-15:16*k),keys); % encrypt by block
+    ciphertext(16*k-15:16*k) = aes_bl(m_padded(16*k-15:16*k),keys,s_box); % encrypt by block
 end
 ciphertext = char(ciphertext); % convert to char
 
