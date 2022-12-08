@@ -1,8 +1,8 @@
 close all; clear; clc;
 
-rng(0); % 随机数种子
-Nexp = 10; % 实验轮数
-Nsymbolused = 2; % 在256个符号中明文使用的符号数，用于制造冗余
+rng(3); % 随机数种子
+Nexp = 1000; % 实验轮数
+Nsymbolused = 4; % 在256个符号中明文使用的符号数，用于制造冗余
 
 lenccount = 0;
 bytecount1 = zeros(1,256);
@@ -28,6 +28,7 @@ figure();
 subplot(2,1,1);
 plot(0:255,bytecount1,'o');
 xlim([0,255]);
+ylim([0,8e-3]);
 line([0,255],[mean(bytecount1),mean(bytecount1)],'Color','red','LineStyle','--');
 title(['信源冗余时(只使用' num2str(Nsymbolused) '个符号)des编码后的的冗余情况'],'FontSize',14,'FontName','黑体');
 xlabel('字节值');
@@ -37,6 +38,7 @@ text( 'string',strcat("mean = ",num2str(mean(bytecount1)),", var = ",num2str(var
 subplot(2,1,2);
 plot(0:255,bytecount2,'o');
 xlim([0,255]);
+ylim([0,8e-3]);
 line([0,255],[mean(bytecount2),mean(bytecount2)],'Color','red','LineStyle','--');
 title(['信源冗余时(只使用' num2str(Nsymbolused) '个符号)aes编码后的的冗余情况'],'FontSize',14,'FontName','黑体');
 xlabel('字节值');

@@ -1,15 +1,16 @@
-function message = des_bl_decode(ciphertext, key)
+function message = des_bl_decode(ciphertext, key, s_box_0)
 % Input: two 1x16 uint8/char vectors, the message to encrypt and the key
 % Output: an 1x16 char vector, the ciphertext
 
 % preparation
-s_box = s_box_foward(); % s-box generation
-s_box_0 = s_box_inverse(); % inverse s-box generation
+if(~exist('s_box','var'))
+    s_box_0 = s_box_inverse(); % inverse s-box generation
+end
 neg = uint8([0x0E,0x0B,0x0D,0x09;0x09,0x0E,0x0B,0x0D;0x0D,0x09,0x0E,0x0B;0x0B,0x0D,0x09,0x0E]); % for inverse MixColumns
 
 % subkey generation
 if(length(key)==16) % if need to generate subkey
-    keys = subkey(key,s_box);
+    keys = subkey(key);
 else
     keys = key;
 end
@@ -51,6 +52,7 @@ yp(8:23) = uint8(reshape(y,[1,16]));
 xp = uint8(zeros(1,23));
 key = reshape(key,[2,8]);
 key(key==0) = uint8(max(key,[],'all')) + 1;
+key_1 = inverse(key(2,1));
 
 for k = 8:23
     for r = 1:8
@@ -59,7 +61,7 @@ for k = 8:23
     for r = 2:8
         xp(k) = bitxor(xp(k), mul(key(2,r), xp(k-r+1)));
     end
-    xp(k) = mul(inverse(key(2,1)),xp(k));
+    xp(k) = mul(key_1,xp(k));
 end
 x = reshape(uint8(xp(8:23)),[4,4]);
 

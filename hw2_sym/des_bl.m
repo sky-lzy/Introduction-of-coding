@@ -1,10 +1,12 @@
-function ciphertext = des_bl(message, key)
+function ciphertext = des_bl(message, key, s_box)
 % Input: two 1x16 uint8/char vectors, the message to encrypt and the key
 % Output: an 1x16 char vector, the ciphertext
 % D stands for DIFFERENTIAL
 
 % preparation
-s_box = s_box_foward(); % s-box generation
+if(~exist('s_box','var'))
+    s_box = s_box_foward(); % s-box generation
+end
 pos = uint8([2,3,1,1;1,2,3,1;1,1,2,3;3,1,1,2]); % matrix for MixColumns
 
 % subkey generation
@@ -49,6 +51,7 @@ xp(8:23) = uint8(reshape(x,[1,16]));
 yp = uint8(zeros(1,23));
 key = reshape(key,[2,8]);
 key(key==0) = uint8(max(key,[],'all')) + 1;
+key_1 = inverse(key(1,1));
 
 for k = 8:23
     for r = 1:8
@@ -57,7 +60,7 @@ for k = 8:23
     for r = 2:8
         yp(k) = bitxor(yp(k), mul(key(1,r), yp(k-r+1)));
     end
-    yp(k) = mul(inverse(key(1,1)),yp(k));
+    yp(k) = mul(key_1,yp(k));
 end
 y = reshape(uint8(yp(8:23)),[4,4]);
 

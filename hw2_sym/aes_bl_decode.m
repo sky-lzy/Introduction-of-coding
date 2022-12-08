@@ -1,15 +1,16 @@
-function message = aes_bl_decode(ciphertext, key)
+function message = aes_bl_decode(ciphertext, key, s_box_0)
 % Input: two 1x16 uint8/char vectors, the message to encrypt and the key
 % Output: an 1x16 char vector, the ciphertext
 
 % preparation
-s_box = s_box_foward(); % s-box generation
-s_box_0 = s_box_inverse(); % inverse s-box generation
+if(~exist('s_box_0','var'))
+    s_box_0 = s_box_inverse(); % inverse s-box generation
+end
 neg = uint8([0x0E,0x0B,0x0D,0x09;0x09,0x0E,0x0B,0x0D;0x0D,0x09,0x0E,0x0B;0x0B,0x0D,0x09,0x0E]); % for inverse MixColumns
 
 % subkey generation
 if(length(key)==16) % if need to generate subkey
-    keys = subkey(key,s_box);
+    keys = subkey(key);
 else
     keys = key;
 end
