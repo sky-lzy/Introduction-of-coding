@@ -1,6 +1,7 @@
 clear all,
 close all,
 clc
+
 %%% RSA
 %generate code
 prime_size = 10; 
@@ -10,11 +11,16 @@ pub_key = output(1);
 pri_key = output(2); 
 N_mod = output(3); 
 
-message = randi([2, N_mod - 1], 1, mess_len);
+bitpcode = ceil(log2(N_mod-1));
+bitstream = round(rand(1,mess_len*(bitpcode-1)));
+message = zeros(1,mess_len);
+for k = 1:mess_len
+    message(k) = bin2dec(num2str(bitstream((k-1)*(bitpcode-1)+1:k*(bitpcode-1))));
+end
 mess_encode = RSA_encode(pub_key, N_mod, mess_len, message); 
 
 %change to bin
-bitpcode = ceil(log2(N_mod-1));
+
 
 input_code = zeros(1,bitpcode*mess_len);
 for k = 1:mess_len
@@ -38,45 +44,41 @@ end
 %decode
 mess_decode = RSA_encode(pri_key, N_mod, mess_len, output);
 
+mess_rec = zeros(1,(bitpcode-1)*mess_len);
+for k = 1:mess_len
+    mess_rec((k-1)*(bitpcode-1)+1 : k*(bitpcode-1)) = dec2bin(mod(mess_decode(k),2^(bitpcode-1)),bitpcode-1)-'0';
+end
+
+
 %% none
-%change to bin
-input_code_none = zeros(1,bitpcode*mess_len);
-for k = 1:mess_len
-    input_code_none((k-1)*bitpcode+1 : k*bitpcode) = dec2bin(message(k),bitpcode)-'0';
-end
-
 %trans
-[output_code_none,es] = realcore_channel(input_code_none,1,T,K,fs,n0,0);
-
-%change 2 num
-clear input_code
-output = zeros(1,mess_len);
-for k = 1:mess_len
-    output_none(k) = bin2dec(num2str(output_code_none((k-1)*bitpcode+1 : k*bitpcode)));
-end
+[output_bitstream,es] = realcore_channel(bitstream,1,T,K,fs,n0,0);
 
 %% visual
 h = figure();
 sgt = sgtitle('Error Pattern','Color','Red');
 sgt.FontSize = 20;
 set(sgt, 'FontName', 'Times New Roman');
-visual_map = zeros(2,mess_len,3);
+visual_map = zeros(200,mess_len*(bitpcode-1),3);
 visual_map(:,:,1) = 0;
 visual_map(:,:,2) = 255;
 visual_map(:,:,3) = 0;
-visual_map(:,mess_decode~=message,1) = 255;
-visual_map(:,mess_decode~=message,2) = 0;
+visual_map(:,mess_rec~=bitstream,1) = 255;
+visual_map(:,mess_rec~=bitstream,2) = 0;
 subplot(2,1,1);
 imshow(visual_map);
+title('RSA')
+
 visual_map(:,:,1) = 0;
 visual_map(:,:,2) = 255;
 visual_map(:,:,3) = 0;
-visual_map(:,output_none~=message,1) = 255;
-visual_map(:,output_none~=message,2) = 0;
+visual_map(:,output_bitstream~=bitstream,1) = 255;
+visual_map(:,output_bitstream~=bitstream,2) = 0;
 subplot(2,1,2);
 imshow(visual_map);
+title('none');
 
 disp('encode')
-display(sum(mess_decode~=message)/mess_len)
+display(sum(mess_rec~=bitstream)/(mess_len*(bitpcode-1)))
 disp('noencode')
-display(sum(output_none~=message)/mess_len)
+display(sum(output_bitstream~=bitstream)/(mess_len*(bitpcode-1)))

@@ -1,6 +1,7 @@
 clear all,
 close all,
 clc
+
 %%% RSA
 %generate code
 prime_size = 10; 
@@ -10,11 +11,16 @@ pub_key = output(1);
 pri_key = output(2); 
 N_mod = output(3); 
 
-message = randi([2, N_mod - 1], 1, mess_len);
+bitpcode = ceil(log2(N_mod-1));
+bitstream = round(randi(1,mess_len*(bitpcode-1)));
+message = zeros(1,mess_len);
+for k = 1:mess_len
+    message(k) = bitstream((k-1)*(bitpcode-1)+1:k*(bitpcode-1));
+end
 mess_encode = RSA_encode(pub_key, N_mod, mess_len, message); 
 
 %change to bin
-bitpcode = ceil(log2(N_mod-1));
+
 
 input_code = zeros(1,bitpcode*mess_len);
 for k = 1:mess_len
@@ -38,13 +44,13 @@ end
 %decode
 mess_decode = RSA_encode(pri_key, N_mod, mess_len, output);
 
-%% none
-%change to bin
-input_code_none = zeros(1,bitpcode*mess_len);
+mess_rec = zeros(1,(bitpcode-1)*mess_len);
 for k = 1:mess_len
-    input_code_none((k-1)*bitpcode+1 : k*bitpcode) = dec2bin(message(k),bitpcode)-'0';
+    mess_rec((k-1)*(bitpcode-1)+1 : k*(bitpcode-1)) = dec2bin(mess_dncode(k),bitpcode-1)-'0';
 end
 
+
+%% none
 %trans
 [output_code_none,es] = realcore_channel(input_code_none,1,T,K,fs,n0,0);
 
