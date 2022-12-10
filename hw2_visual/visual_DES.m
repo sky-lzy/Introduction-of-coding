@@ -13,7 +13,7 @@ message = zeros(1,mess_len);
 for k = 1:mess_len
     message(k) = bin2dec(num2str(bitstream((k-1)*bitpcode+1:k*bitpcode)));
 end
-mess_encode = aes(message,key)+0; 
+mess_encode = des(message,key)+0; 
 
 %change to bin
 
@@ -27,7 +27,7 @@ end
 T = 21;
 K = 3;
 fs = 10000;% 假定采样率10k
-n0 = 0.0003;
+n0 = 0.0005;
 sigma2 = fs*n0/2;
 [output_code,es] = realcore_channel(input_code,1,T,K,fs,n0,0);
 
@@ -38,7 +38,7 @@ for k = 1:length(mess_encode)
 end
 
 %decode
-mess_decode = aes_decode(output,key)+0;
+mess_decode = des_decode(output,key)+0;
 
 mess_rec = zeros(1,bitpcode*mess_len);
 for k = 1:mess_len
@@ -63,7 +63,7 @@ visual_map(:,mess_rec~=bitstream,1) = 255;
 visual_map(:,mess_rec~=bitstream,2) = 0;
 subplot(2,1,1);
 imshow(visual_map);
-title('aes')
+title('des')
 
 visual_map(:,:,1) = 0;
 visual_map(:,:,2) = 255;
