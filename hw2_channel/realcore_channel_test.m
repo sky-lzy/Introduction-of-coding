@@ -1,6 +1,6 @@
 %% initial test
 clc;clear;close all;
-N = 10;
+N = 100;
 dtest = round(rand(1,N));
 T = 21;
 K = 3;
@@ -113,7 +113,7 @@ xlabel('Eb/n0(dB)');
 ylabel('BER');
 title('BER with differernt K T');
 legend('K = 2.5 T = 2','K = 2.5 T = 3','K = 2.5 T = 5','K = 3 T = 10','K = 3 T = 21','K = 3 T = 30');
-%% BER 1/3 convolutional code - K = 2.5?
+%% BER 1/3 convolutional code - K = 2.5/3.25
 L = 10000;
 g = [1,1,0,1;1,0,1,1;1,1,1,1];
 input = round(rand(1,L));
@@ -135,11 +135,11 @@ figure();
 for k = 1:len_KT
     for i = 1:N_dots
         output_code = conv_encode(input, 3, 0, 0);
-        % 1bit mapping
-        [output,es] = realcore_channel(output_code,1,T(k),K(k),fs,n0(i),0);
-        [~,corr_rate] = conv_decode(output',L,g,0,input,0,0,0);
-        ber_bit1(k,i) = 1-corr_rate;
-        Eb1(k,i) = es/L;
+%         % 1bit mapping
+%         [output,es] = realcore_channel(output_code,1,T(k),K(k),fs,n0(i),0);
+%         [~,corr_rate] = conv_decode(output',L,g,0,input,0,0,0);
+%         ber_bit1(k,i) = 1-corr_rate;
+%         Eb1(k,i) = es/L;
         % 2bit mapping
         [output,es] = realcore_channel(output_code,2,T(k),K(k),fs,n0(i),0);
         [~,corr_rate] = conv_decode(output',L,g,0,input,0,0,0);
@@ -151,15 +151,14 @@ for k = 1:len_KT
         ber_bit3(k,i) = 1-corr_rate;
         Eb3(k,i) = es/L;
     end
-    semilogy(pow2db(Eb1(k,:)./n0), ber_bit1(k,:), 'Marker', '*', 'Linewidth', 1.5, 'LineStyle', '-'); hold on;
-    semilogy(pow2db(Eb2(k,:)./n0), ber_bit2(k,:), 'Marker', '*', 'Linewidth', 1.5, 'LineStyle', '--');
+    semilogy(pow2db(Eb2(k,:)./n0), ber_bit2(k,:), 'Marker', '*', 'Linewidth', 1.5, 'LineStyle', '--');hold on;
     semilogy(pow2db(Eb3(k,:)./n0), ber_bit3(k,:), 'Marker', '*', 'Linewidth', 1.5, 'LineStyle', '-.');
 end
 grid on;
 xlabel('Eb/n0(dB)');
 ylabel('BER');
 title('BER when K = 2.5');
-legend('K = 2.5 T = 2 1-bit','K = 2.5 T = 2 2-bit','K = 2.5 T = 2 3-bit',...
-    'K = 2.5 T = 3 1-bit','K = 2.5 T = 3 2-bit','K = 2.5 T = 3 3-bit',...
-    'K = 2.5 T = 5 1-bit','K = 2.5 T = 5 2-bit', 'K = 2.5 T = 5 3-bit',...
-    'K = 2.5 T = 10 1-bit', 'K = 2.5 T = 10 2-bit', 'K = 2.5 T = 10 3-bit');
+legend('K = 2.5 T = 2 2-bit','K = 2.5 T = 2 3-bit',...
+    'K = 2.5 T = 3 2-bit','K = 2.5 T = 3 3-bit',...
+    'K = 2.5 T = 5 2-bit', 'K = 2.5 T = 5 3-bit',...
+     'K = 2.5 T = 10 2-bit', 'K = 2.5 T = 10 3-bit');

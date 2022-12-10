@@ -1,16 +1,15 @@
 function [output_code,es] = realcore_channel(input_code,N_bits,T,K,fs,n0,visualize)
 %   输出判决结果和总符号能量
-    ini_phase = pi/16;
     len_encode = length(input_code);
     encode_code = zeros(1, len_encode/N_bits);
     for iter = 1:len_encode/N_bits
         encode_code(iter) = bin2dec(num2str(input_code(N_bits*(iter-1)+1:N_bits*iter)));
     end
-    u = pskmod(encode_code,2^N_bits,ini_phase);% 将比特映射为复电平
+    u = pskmod(encode_code,2^N_bits);% 将比特映射为复电平
     
     [v,es,u,x_plot,s_plot,r_plot] = core(u,T,K,fs,n0);
     
-    receive_code = pskdemod(v,2^N_bits,ini_phase);%符号判决
+    receive_code = pskdemod(v,2^N_bits);%符号判决
     output_code = zeros(1, length(input_code));
     for iter = 1:len_encode/N_bits
         output_code(N_bits*(iter-1)+1:N_bits*iter) = dec2bin(receive_code(iter), N_bits) - '0';
