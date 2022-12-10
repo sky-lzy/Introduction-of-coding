@@ -6,6 +6,18 @@ clc
 %generate code
 key = randi(256,[1,16])-1; % 生成密钥
 
+%RSA传密钥
+prime_size = 10; 
+output = RSA_generate(prime_size); 
+pub_key = output(1); 
+pri_key = output(2); 
+N_mod = output(3); 
+for k = 1:16
+    out_mess = RSA_encode_mess(dec2bin(key_in(k),8)-'0', pub_key, N_mod, 0);
+    out_mess = RSA_encode_mess(out_mess, pri_key, N_mod, 1);
+    key(k) = bin2dec(num2str(out_mess(1:8)));
+end
+
 bitpcode = 8;
 mess_len = 127;
 bitstream = round(rand(1,mess_len*bitpcode));

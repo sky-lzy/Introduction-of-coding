@@ -13,9 +13,12 @@ pub_key = output(1);
 pri_key = output(2); 
 N_mod = output(3); 
 for k = 1:16
-    out_mess = RSA_encode_mess(dec2bin(key_in(k),8)-'0', pub_key, N_mod, 0);
+    out_mess = RSA_encode_mess(dec2bin(key_in(k)), pub_key, N_mod, 0);
     out_mess = RSA_encode_mess(out_mess, pri_key, N_mod, 1);
-    key(k) = bin2dec(num2str(out_mess(1:8)));
+    key(k) = bin2dec(num2str(out_mess));
+end
+if key==key_in
+    disp('true')
 end
 
 bitpcode = 8;
