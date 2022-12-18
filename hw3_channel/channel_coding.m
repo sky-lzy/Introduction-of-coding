@@ -17,7 +17,7 @@ function output_bits = channel_coding(input_bits, coding_mode, n, k, conv_constr
     elseif (coding_mode == "conv/decode")
         output_bits = vitdec(input_bits, poly2trellis(conv_constrain_length, conv_code_generator), conv_traceback, 'trunc', conv_decision); 
     else
-        error('Coding mode can be set as "hamming/encode", "hamming/decode", "cyclic/encode", "cyclic/decode", "repeat/encode", "repeat/decode". '); 
+        error('Coding mode can be set as "hamming/encode", "hamming/decode", "cyclic/encode", "cyclic/decode", "repeat/encode", "repeat/decode", "conv/encode", "conv/decode". '); 
     end
     
 
