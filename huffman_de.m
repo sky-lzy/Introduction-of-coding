@@ -1,4 +1,4 @@
-function decode = huffman_indi_de(bits_huff,dict)
+function decode = huffman_de(bits_huff,dict)
     decode = [];
     len = length(dict);
     while isempty(bits_huff) == 0
