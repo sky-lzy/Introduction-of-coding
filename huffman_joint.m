@@ -6,10 +6,10 @@ function [bitnum,bits_huff] = huffman_joint(picture)
         end
     end
 
-    symbols = [];
+    symbols = double([]);
     prob = [];
-    for m = 1:max(max(picture))
-        for n = 1:max(max(picture))
+    for m = double(1:max(max(picture)))
+        for n = double(1:max(max(picture)))
             if count(m,n) ~= 0
                 symbols = [symbols,m*1000+n];
                 prob = [prob,count(m,n)];
@@ -29,7 +29,7 @@ function [bitnum,bits_huff] = huffman_joint(picture)
     bits_huff = [];
     for m = 1:s(1)
         for n = 1:2:s(2)
-            bits_huff = [bits_huff,dict(picture(m,n)*1000+picture(m,n+1),2)];
+            bits_huff = [bits_huff,dict(symbols==picture(m,n)*1000+picture(m,n+1),2)];
         end
     end
     bits_huff = num2str(bits_huff);
