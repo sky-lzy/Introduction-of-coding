@@ -26,7 +26,7 @@ for k = 1:Nblocks
     end
 end
 Npadding = uint8(message(end)); % padding num
-if(length(message) > Npadding)
+if(length(message) > Npadding && length(message)>128)
     message = char(message(1:end-Npadding)); % remove padding and convert to char
 end
 
