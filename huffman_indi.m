@@ -27,12 +27,12 @@ function [bitnum,bits_huff] = huffman_indi(picture)
     bits_huff = [];
     for m = 1:s(1)
         for n = 1:s(2)
-            bits_huff = [bits_huff,dict(picture(m,n),2)];
+            bits_huff = [bits_huff,cell2mat(dict(symbols==picture(m,n),2))];
         end
     end
     bits_huff = num2str(bits_huff);
 
-    fid = fopen('table.txt', 'wt');
+    fid = fopen('table_indi.txt', 'wt');
     for m = 1:size(dict,1)-1
         fprintf(fid, '%d',cell2mat(dict(m,1)));
         fprintf(fid, ' ');

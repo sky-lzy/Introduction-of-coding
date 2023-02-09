@@ -62,8 +62,9 @@ switch i_quant
 end
 
 %VLC option
-vlcRadio = 1; % 0:one symbol 1:two connected symbols
+vlcRadio = 0; % 0:one symbol 1:two connected symbols
 onesymbol_coodbook_file = "table.txt";
+onesymbol_coodbook_file = "table_huffman.txt";
 twosymbol_coodbook_file = "table2.txt";
 
 twosymbol_decode_file = "double_data.txt";
@@ -77,9 +78,11 @@ end
 b_FileStat = false;   %indicate whether the file is load correctly or not
 %[fileName, pathName] = uigetfile('*');  %load the image via GUI
 fileName = 'lena_128_bw.bmp';
-pathName = 'D:\Code\matlab\coding\introduction-of-coding\hw3_quantification_vlc\MATLABcodec\';
-srcImage = imread(strcat(pathName, fileName));
-infoSrcImage = imfinfo(strcat(pathName, fileName));
+% pathName = 'D:\Code\matlab\coding\introduction-of-coding\hw3_quantification_vlc\MATLABcodec\';
+% srcImage = imread(strcat(pathName, fileName));
+% infoSrcImage = imfinfo(strcat(pathName, fileName));
+srcImage = imread(fileName);
+infoSrcImage = imfinfo(fileName);
 if ~isempty(srcImage)
     srcImgBits = infoSrcImage.Width*infoSrcImage.Height*infoSrcImage.BitDepth; %bits of the input image
     fprintf("input image bit:%d\n",srcImgBits);
@@ -127,6 +130,7 @@ switch i_quant
         end
         bitCount = HuffmanCoding(huffOri, round(255/quant_step)+1);% 只给出了Huffman后的比特数无编码结果
         fprintf("Processed image bit:%d\n",bitCount);
+        [bitnum,bits_huff] = huffman_indi(procImage);
     case 1 %standard quantization(JPEG quantization with DCT)
         if quant_factor > 100 || quant_factor < 1
             disp("No factor input[1-100]!");
@@ -196,6 +200,7 @@ switch i_quant
         % bit count
         bitCount = HuffmanCoding(huffOri, huffIdx);
         fprintf("Processed image bit:%d\n",bitCount);
+        maketable(huffOri, huffIdx);
     case 2
         %%customed quantization
         img_width = size(procImage, 2);
