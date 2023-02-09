@@ -27,7 +27,12 @@ plot(0:5,cr,'Marker','o');hold on;
 title('CRs differ from blockOption');
 xlabel('blockOption');
 ylabel('CR');
-
+figure();
+plot(0:5,psnrs_u,'Marker','o');hold on;
+ylim([0,20]);
+title('PSNRs differ from blockOption');
+xlabel('blockOption');
+ylabel('PSNR');
 
 %% uniform quantization (step)
 blockOption = 0;
@@ -53,7 +58,7 @@ for i = 1:4
     title(['step:',num2str(quant_step(i))]);
     imshow(squeeze(procImages(i,:,:)));
 end
-sgtitle('procImages differ from quant_step');
+sgtitle('procImages differ from quant step');
 figure('Name','R-D','NumberTitle','off');
 plot(bitCounts_u,psnrs_u,'Marker','*');hold on;
 title('Rate-Distortion');
@@ -79,13 +84,13 @@ for index = 1:num_dots
     bitCounts_h(index) = bitCount;
 end
 close all;
-figure('Name','procImages differ from quant_factor(JPEG)','NumberTitle','off');
+figure('Name','procImages differ from quant factor(JPEG)','NumberTitle','off');
 for i = 1:num_dots
     subplot(2,4,i);hold on;
-    title(['step:',num2str(quant_factor(i))]);
+    title(['factor:',num2str(quant_factor(i))]);
     imshow(squeeze(procImages(i,:,:)));
 end
-sgtitle('procImages differ from quant_factor');
+sgtitle('procImages differ from quant factor');
 figure('Name','R-D(JPEG)','NumberTitle','off');
 plot(bitCounts_h,psnrs_h,'Marker','*');hold on;
 title('Rate-Distortion(JPEG)');
@@ -118,13 +123,13 @@ for index = 1:num_dots
     bitCounts_c(index) = bitCount;
 end
 close all;
-figure('Name','procImages differ from quant_array(custom)','NumberTitle','off');
+figure('Name','procImages differ from quant array(custom)','NumberTitle','off');
 for i = 1:num_dots
     subplot(2,4,i);hold on;
     title(['No:',num2str(i)]);
     imshow(squeeze(procImages(i,:,:)));
 end
-sgtitle('procImages differ from quant_array');
+sgtitle('procImages differ from quant array');
 [sorted_bitCounts,I] = sort(bitCounts_c);
 sorted_psnrs = psnrs_c(I);
 figure('Name','R-D(custom)','NumberTitle','off');
