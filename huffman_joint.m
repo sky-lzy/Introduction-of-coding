@@ -1,7 +1,9 @@
 function [bitnum,bits_huff] = huffman_joint(prob,nodes,picture)
     prob_norm = prob./sum(prob);
-    prob_norm = [prob_norm,0];
-    symbols = (0:nodes);
+%     prob_norm = [prob_norm,0];
+%     symbols = (0:nodes);
+    symbols = (1:nodes);
+    prob_norm = prob_norm(1:nodes);
     [dict,avglen] = huffmandict(symbols,prob_norm);
     s = size(picture);
     bitnum = s(1)*s(2)*avglen;

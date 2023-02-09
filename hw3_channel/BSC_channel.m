@@ -7,11 +7,14 @@ function [output_bits, err_rate] = BSC_channel(input_bits, rate_s, rate_sample, 
     end
 
     % Electric Level Modulation
-    input_bits_group = reshape(input_bits, k, mess_len/k); 
+    input_bits_group = reshape(input_bits, k, mess_len/k);
+    input_bits_group = bin2dec(char(input_bits_group'+'0'))';
     if (modulation_mode == "psk") 
-        tx_elec = pskmod(input_bits_group, M, 'InputType', 'bit'); 
+%         tx_elec = pskmod(input_bits_group, M, 'InputType', 'bit'); 
+        tx_elec = pskmod(input_bits_group, M); 
     elseif (modulation_mode == "qam")
-        tx_elec = qammod(input_bits_group, M, 'InputType', 'bit', 'UnitAveragePower', 1); 
+%         tx_elec = qammod(input_bits_group, M, 'InputType', 'bit', 'UnitAveragePower', 1); 
+        tx_elec = qammod(input_bits_group, M, 'UnitAveragePower', 1); 
     else
         error('Modulation Mode can only be "psk" or "qam". '); 
     end
@@ -39,10 +42,14 @@ function [output_bits, err_rate] = BSC_channel(input_bits, rate_s, rate_sample, 
 
     % Electric Level Demodulation
     if (modulation_mode == "psk") 
-        output_bits = pskdemod(rx_elec, M, 'OutputType', 'bit'); 
+%         output_bits = pskdemod(rx_elec, M, 'OutputType', 'bit'); 
+        output_bits = pskdemod(rx_elec, M); 
     elseif (modulation_mode == "qam")
-        output_bits = qamdemod(rx_elec, M, 'OutputType', 'bit', 'UnitAveragePower', 1); 
+%         output_bits = qamdemod(rx_elec, M, 'OutputType', 'bit', 'UnitAveragePower', 1); 
+        output_bits = qamdemod(rx_elec, M, 'UnitAveragePower', 1); 
     end
+    output_bits = double(dec2bin(output_bits')-'0')';
+
     output_bits = reshape(output_bits, 1, mess_len); 
 
     err_rate = biterr(input_bits, output_bits) / mess_len; 

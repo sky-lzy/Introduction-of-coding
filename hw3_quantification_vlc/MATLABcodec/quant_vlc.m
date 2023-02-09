@@ -1,3 +1,4 @@
+close all; clear; clc;
 %% uniform quantization (blockOption)
 i_quant = 0;
 quant_step = 50;   % 1-255;
@@ -6,9 +7,11 @@ quant_array = [10, 20, 30, 40];   % your quantization array
 
 cr = zeros(1,6);
 procImages = uint8(zeros(1,128,128));
+psnrs_u = zeros(1,5);
 for blockOption = 0:5
     [procImage,recImage,psnrArray,srcImgBits,bitCount] = func_codec(blockOption,i_quant,quant_step,quant_factor,quant_array);
     cr(blockOption+1) = bitCount/srcImgBits;  
+    psnrs_u(blockOption+1) = mean(psnrArray);
     procImages(blockOption+1,:,:) = procImage;
 end
 close all;
