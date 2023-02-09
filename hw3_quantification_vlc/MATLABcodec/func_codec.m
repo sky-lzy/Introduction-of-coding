@@ -130,7 +130,8 @@ switch i_quant
         end
         bitCount = HuffmanCoding(huffOri, round(255/quant_step)+1);% 只给出了Huffman后的比特数无编码结果
         fprintf("Processed image bit:%d\n",bitCount);
-        [bitnum,bits_huff] = huffman_indi(procImage);
+%         [bitnum,bits_huff] = huffman_indi(procImage);
+        [bitnum,bits_huff] = huffman_joint(procImage);
     case 1 %standard quantization(JPEG quantization with DCT)
         if quant_factor > 100 || quant_factor < 1
             disp("No factor input[1-100]!");
