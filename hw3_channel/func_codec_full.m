@@ -1,4 +1,4 @@
-function [procImage,recImage,psnrArray,srcImgBits,bitCount] = func_codec_full(blockOption,i_quant,quant_step,quant_factor,quant_array)
+function [procImage,recImage,psnrArray,srcImgBits,bitCount] = func_codec_full(blockOption,i_quant,quant_step,quant_factor,quant_array,vlcRadio,SNR,modulation_M,coding_config)
 % % % % % % % % % % % % % % % % % % % % % %
 % Author:Ziwei Wei, Benben Niu
 % E-mail: weizw18@mails.tsinghua.edu.cn
@@ -62,9 +62,11 @@ switch i_quant
 end
 
 %VLC option
-vlcRadio = 0; % 0:one symbol 1:two connected symbols
-onesymbol_coodbook_file = "table.txt";
-twosymbol_coodbook_file = "table2.txt";
+% vlcRadio = 1; % 0:one symbol 1:two connected symbols
+% onesymbol_coodbook_file = "table.txt";
+% twosymbol_coodbook_file = "table2.txt";
+onesymbol_coodbook_file = "table_indi.txt";
+twosymbol_coodbook_file = "table_joint.txt";
 
 twosymbol_decode_file = "double_data.txt";
 if vlcRadio==0
@@ -296,11 +298,13 @@ num_2_2 = [];
 code_2 = [];
 if vlcRadio==0 || vlcRadio==1
     if vlcRadio==0
+        huffman_indi(procImage);
         [num_1, code_1]=oneSymbolEncode(onesymbol_coodbook_file, blockOption, srcImage, procImage, slice_start_code);
     else
         if mod(size(srcImage,2),2)==1
             disp("Please change another image with even pixs width!\n");
         else
+            huffman_joint(procImage);
             [num_2_1, num_2_2, code_2]=twoSymbolEncode(twosymbol_coodbook_file, blockOption, srcImage, procImage, slice_start_code);
         end
     end
@@ -316,19 +320,22 @@ mess = fileread("bin.txt") - '0';
 Rs = 1e3; 
 R_sample = 1e6; 
 carrier_freq = 1e4; 
-SNR = 50; % Es/N0 (dB)
+% SNR = 50; % Es/N0 (dB)
 modulation_mode = "psk"; % "qam" or "psk" 
-modulation_M = 4; % QPSK 
+% modulation_M = 4; % QPSK 
+coding_mode = coding_config{1}; % hamming/encode, ...
+param_1 = coding_config{2};
+param_2 = coding_config{3};
 
-mess_hamming = channel_coding(mess, "hamming/encode", 7, 4); 
+mess_coded = channel_coding(mess, strcat(coding_mode,"/encode"), param_1, param_2); 
 
-[rece_hamming, ~] = BSC_channel(mess_hamming, Rs, R_sample, carrier_freq, SNR, modulation_mode, modulation_M, false); 
-decode_hamming = channel_coding(rece_hamming, "hamming/decode", 7, 4); 
-error_hamming = biterr(mess, decode_hamming) / length(mess); 
+[rece_coded, ~] = BSC_channel(mess_coded, Rs, R_sample, carrier_freq, SNR, modulation_mode, modulation_M, false); 
+mess_decoded = channel_coding(rece_coded, strcat(coding_mode,"/decode"), param_1, param_2); 
+error = biterr(mess, mess_decoded(1:length(mess))) / length(mess); 
 
 % write bin.txt
-fid = fopen('draft.txt','w');
-fprintf(fid,'%d',decode_hamming);
+fid = fopen('bin.txt','w');
+fprintf(fid,'%d',mess_decoded(1:length(mess)));
 
 
 %  input decoded image
@@ -360,22 +367,22 @@ else
     return;
 end
 
-% %%%%%%%%%%%% Save Proc File %%%%%%%%%%%%%%%
-% if ~isempty(procImage)
-%     %save the processed image into file
-%     imwrite(procImage, 'procImage.bmp');
-%     disp("save the processed image correctly.")
-% else
-%     disp("Quantize the image first!");
-% end
-% 
-% %%%%%%%%%%%% Save Rec File %%%%%%%%%%%%%%%%
-% if ~isempty(recImage)
-%     %save the reconstructed image into file
-%     imwrite(uint8(recImage), 'recImage.bmp');
-%     disp("save the reconstructed image correctly.")
-% else
-%     disp("VLC the image first!");
+%%%%%%%%%%%% Save Proc File %%%%%%%%%%%%%%%
+if ~isempty(procImage)
+    %save the processed image into file
+    imwrite(procImage, 'procImage.bmp');
+    disp("save the processed image correctly.")
+else
+    disp("Quantize the image first!");
+end
+
+%%%%%%%%%%%% Save Rec File %%%%%%%%%%%%%%%%
+if ~isempty(recImage)
+    %save the reconstructed image into file
+    imwrite(uint8(recImage), 'recImage.bmp');
+    disp("save the reconstructed image correctly.")
+else
+    disp("VLC the image first!");
 end
 
 

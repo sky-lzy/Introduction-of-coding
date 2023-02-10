@@ -34,7 +34,7 @@ function [bitnum,bits_huff] = huffman_joint(picture)
     end
     bits_huff = num2str(bits_huff);
 
-    fid = fopen('table.txt', 'wt');
+    fid = fopen('table_joint.txt', 'wt');
     for m = 1:size(dict,1)-1
         fprintf(fid, '%d',floor(cell2mat(dict(m,1))/1000));
         fprintf(fid, ' ');

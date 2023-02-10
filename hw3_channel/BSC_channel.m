@@ -2,12 +2,13 @@ function [output_bits, err_rate] = BSC_channel(input_bits, rate_s, rate_sample, 
 
     k = log2(M); 
     mess_len = length(input_bits); 
-    if (mod(mess_len, k))
-        error('The length of message is not in integral multiple of k. '); 
-    end
+%     if (mod(mess_len, k))
+%         error('The length of message is not in integral multiple of k. '); 
+%     end
 
     % Electric Level Modulation
-    input_bits_group = reshape(input_bits, k, mess_len/k);
+    input_bits = [input_bits,zeros(1,mod(k-length(input_bits),k))];
+    input_bits_group = reshape(input_bits, k, ceil(mess_len/k));
     input_bits_group = bin2dec(char(input_bits_group'+'0'))';
     if (modulation_mode == "psk") 
 %         tx_elec = pskmod(input_bits_group, M, 'InputType', 'bit'); 
@@ -50,7 +51,7 @@ function [output_bits, err_rate] = BSC_channel(input_bits, rate_s, rate_sample, 
     end
     output_bits = double(dec2bin(output_bits')-'0')';
 
-    output_bits = reshape(output_bits, 1, mess_len); 
+    output_bits = reshape(output_bits, 1, []); 
 
     err_rate = biterr(input_bits, output_bits) / mess_len; 
 
